@@ -594,15 +594,16 @@ namespace json
         out << '"';
     }
 
+   
     void Print(const Document& doc, std::ostream& output)
     {
         auto var = doc.GetRoot().GetNode().index();
         Node node = doc.GetRoot();
-        if (var == 0) //Null
+        if (var == NodeVariant::IS_NULL) 
         {
             output << "null"s;
         }
-        else if (var == 1)   //Arrey
+        else if (var == NodeVariant::IS_ARREY)   
         {
             bool is_first = true;
             static bool first = true;
@@ -630,7 +631,7 @@ namespace json
             }
 
         }
-        else if (var == 2)  // Map
+        else if (var == NodeVariant::IS_MAP)  
         {
             bool is_first = true;
 
@@ -649,7 +650,7 @@ namespace json
             }
             output << "\n    }";
         }
-        else if (var == 3) //Bool
+        else if (var == NodeVariant::IS_BOOL) 
         {
             if (node.AsBool())
             {
@@ -660,18 +661,18 @@ namespace json
                 output << "false"s;
             }
         }
-        else if (var == 4) //Int
+        else if (var == NodeVariant::IS_INT) 
         {
             output << std::to_string(node.AsInt());
         }
-        else if (var == 5) // Double
+        else if (var == NodeVariant::IS_DOUBLE) 
         {
             ostringstream ost;
             ost << node.AsDouble();
             std::string result = ost.str();
             output << result;
         }
-        else if (var == 6)  //String
+        else if (var == NodeVariant::IS_STRING)  
         {
             PrintString(doc.GetRoot().AsString(), output);
         }

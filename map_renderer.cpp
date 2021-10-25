@@ -141,10 +141,10 @@ namespace renderer
 		}
 	}
 
-	std::vector<std::tuple<std::string, std::pair<svg::Text, svg::Text>>> MapRenderer::AddNameStops(const transport_catalogue::Bus& bus)
+	std::vector<ShapeTextNameStop> MapRenderer::AddNameStops(const transport_catalogue::Bus& bus)
 	{
 		{
-			std::vector<std::tuple<std::string, std::pair<svg::Text, svg::Text>>> result;
+			std::vector<ShapeTextNameStop> result;
 			for (size_t i = 0; i < bus.stops.size() - 1; ++i)
 			{
 				svg::Text name_stop;
@@ -172,15 +172,15 @@ namespace renderer
 				name_stop_substr.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
 
 				name_stop.SetFillColor("black");
-				result.push_back({ bus.stops[i]->name ,{ name_stop, name_stop_substr } });
+				result.push_back({ bus.stops[i]->name , name_stop, name_stop_substr });
 			}
 			return result;
 		}
 	}
 
-	std::vector<std::pair<std::string, svg::Circle>> MapRenderer::AddCircleStops(const transport_catalogue::Bus& bus)
+	std::vector<ShapeCircleStop> MapRenderer::AddCircleStops(const transport_catalogue::Bus& bus)
 	{
-		std::vector<std::pair<std::string, svg::Circle>> result;
+		std::vector<ShapeCircleStop> result;
 		for (size_t i = 0; i < bus.stops.size() - 1; ++i)
 		{
 			svg::Circle circle;
@@ -252,22 +252,22 @@ namespace renderer
 		TempDocument temp;
 		for (const auto& bus : buses)
 		{
-			if (bus.name_stops.size())
+			if (bus.shape_name_stops.size())
 			{
-				temp.shap_buses.push_back(bus.route_bus);
+				temp.shape_buses.push_back(bus.shape_route_bus);
 
-				for (const auto& n_bus : bus.name_bus)
+				for (const auto& n_bus : bus.shape_name_bus)
 				{
-					temp.name_bus.push_back(n_bus);
+					temp.shape_name_buses.push_back(n_bus);
 				}
 
-				for (const auto& circle_stop : bus.circle_stops)
+				for (const auto& circle_stop : bus.shape_circle_stops)
 				{
-					temp.circle_stops.insert({ circle_stop.first, circle_stop.second });
+					temp.shape_circle_stops.insert({ circle_stop.name_stop, circle_stop.shape_stop });
 				}
-				for (const auto& name_stop : bus.name_stops)
+				for (const auto& name_stop : bus.shape_name_stops)
 				{
-					temp.name_stops.insert({ std::get<0>(name_stop),std::get<1>(name_stop) });
+					temp.shape_name_stops.insert({ name_stop.name_stop ,{name_stop.shape_name_stop, name_stop.shape_name_stop_substr } });
 				}
 			}
 		}
@@ -278,21 +278,21 @@ namespace renderer
 	{
 		svg::Document doc;
 
-		for (const auto& line : PreparationDocument(buses_).shap_buses)
+		for (const auto& line : PreparationDocument(buses_).shape_buses)
 		{
 			doc.Add(line);
 		}
-		for (const auto& text : PreparationDocument(buses_).name_bus)
+		for (const auto& text : PreparationDocument(buses_).shape_name_buses)
 		{
 			doc.Add(text);
 		}
 
-		for (const auto& circle : PreparationDocument(buses_).circle_stops)
+		for (const auto& circle : PreparationDocument(buses_).shape_circle_stops)
 		{
 			doc.Add(circle.second);
 		}
 
-		for (const auto& stop : PreparationDocument(buses_).name_stops)
+		for (const auto& stop : PreparationDocument(buses_).shape_name_stops)
 		{
 			doc.Add(stop.second.second);
 			doc.Add(stop.second.first);

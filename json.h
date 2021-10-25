@@ -7,7 +7,18 @@
 #include <variant>
 #include <sstream>
 
-namespace json {
+namespace json 
+{
+    enum NodeVariant
+    {
+        IS_NULL,
+        IS_ARREY,
+        IS_MAP,
+        IS_BOOL,
+        IS_INT,
+        IS_DOUBLE,
+        IS_STRING
+    };
 
     class Node;
     using Dict = std::map<std::string, Node>;

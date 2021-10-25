@@ -38,10 +38,10 @@ namespace transport_catalogue
 	struct Bus
 	{
 		std::string name;
-		std::vector<StopPtr>stops;
+		std::vector<StopPtr> stops;
 		std::vector<std::string> stops_for_bus;
-		std::string ending_station_first;
-		std::string ending_station_lost;
+		std::string name_first_stop;
+		std::string name_last_stop;
 		bool is_roundtrip = false;
 	};
 
@@ -61,10 +61,16 @@ namespace transport_catalogue
 		int distance = 0;
 	};
 
+	struct NearestStop
+	{
+		std::string name_nearest_stop;
+		int distance_to_nearest_stop = 0;
+	};
+
 	struct DistanceStop
 	{
 		std::string name_stop;
-		std::vector<std::pair<std::string, int>> stops_to_stop;
+		std::vector<NearestStop> distance_to_nearest_stops;
 	};
 	class TransportCatalogue
 	{
@@ -82,7 +88,7 @@ namespace transport_catalogue
 
 		void AddBus(std::string&& name_bus, std::vector<std::string>&& stops_for_bus, bool is_ring, std::string&& station_lost) noexcept;
 
-		void AddDistanceBetweenStops(std::string_view nameStop, std::vector<std::pair< std::string, int>> stops_to_stop) noexcept;
+		void AddDistanceBetweenStops(std::string_view nameStop, const std::vector<NearestStop>& stops_to_stop) noexcept;
 
 		std::deque<Bus> GetRoute() const noexcept;
 
@@ -95,13 +101,13 @@ namespace transport_catalogue
 		const std::unordered_map<StopPtr, std::unordered_set<BusPtr>>& GetStopToBuses()const noexcept;
 
 	private:
-		std::deque<Bus>buses_;
-		std::deque<Stop>stops_;
+		std::deque<Bus> buses_;
+		std::deque<Stop> stops_;
 
 		std::unordered_map<StopPtr, std::unordered_set<BusPtr>> stop_to_buses_;
 
 		std::unordered_map<std::string_view, BusPtr> name_bus_;
-		std::unordered_map<std::string_view, StopPtr>name_stop_;
+		std::unordered_map<std::string_view, StopPtr> name_stop_;
 
 		std::unordered_map<std::pair<StopPtr, StopPtr>, int, StopHasher> dist_betw_stops_;
 	};

@@ -90,10 +90,10 @@ namespace renderer
 {
 	struct TempDocument
 	{
-		std::vector<svg::Polyline>shap_buses;
-		std::vector<svg::Text>name_bus;
-		std::map<std::string, svg::Circle> circle_stops;
-		std::map<std::string, std::pair<svg::Text, svg::Text>> name_stops;
+		std::vector<svg::Polyline> shape_buses;
+		std::vector<svg::Text> shape_name_buses;
+		std::map<std::string, svg::Circle> shape_circle_stops;
+		std::map<std::string, std::pair<svg::Text, svg::Text>> shape_name_stops;
 	};
 
 	struct RenderSettings
@@ -116,12 +116,25 @@ namespace renderer
 		std::vector<svg::Color> color_palette{};
 	};
 
+	struct ShapeTextNameStop
+	{
+		std::string name_stop;
+		svg::Text shape_name_stop;
+		svg::Text shape_name_stop_substr;
+	};
+
+	struct ShapeCircleStop
+	{
+		std::string name_stop;
+		svg::Circle shape_stop;
+	};
+
 	struct BusSvg
 	{
-		svg::Polyline route_bus;
-		std::vector<svg::Text> name_bus;
-		std::vector<std::pair<std::string, svg::Circle>> circle_stops;
-		std::vector<std::tuple<std::string, std::pair<svg::Text, svg::Text>>> name_stops;
+		svg::Polyline shape_route_bus;
+		std::vector<svg::Text> shape_name_bus;
+		std::vector<ShapeCircleStop> shape_circle_stops;
+		std::vector<ShapeTextNameStop> shape_name_stops;
 	};
 
 	class MapRenderer
@@ -135,9 +148,9 @@ namespace renderer
 
 		inline std::vector<svg::Text> AddNameBus(const transport_catalogue::Bus& bus, const svg::Color& color);
 
-		inline std::vector<std::tuple<std::string, std::pair<svg::Text, svg::Text>>> AddNameStops(const transport_catalogue::Bus& bus);
+		inline std::vector<ShapeTextNameStop> AddNameStops(const transport_catalogue::Bus& bus);
 
-		inline std::vector<std::pair<std::string, svg::Circle>> AddCircleStops(const transport_catalogue::Bus& bus);
+		inline std::vector<ShapeCircleStop> AddCircleStops(const transport_catalogue::Bus& bus);
 
 		inline void PushBusSvg(const transport_catalogue::Bus& bus, const svg::Color& color);
 

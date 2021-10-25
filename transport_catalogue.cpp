@@ -42,14 +42,14 @@ void transport_catalogue::TransportCatalogue::AddStop(std::pair<double, double> 
 	stop_to_buses_.insert({ &stops_.back(), {} });
 }
 
-void transport_catalogue::TransportCatalogue::AddBus(std::string&& name_bus, std::vector<std::string>&& stops_for_bus, bool is_ring, std::string&& station_lost) noexcept
+void transport_catalogue::TransportCatalogue::AddBus(std::string&& name_bus, std::vector<std::string>&& stops_for_bus, bool is_ring, std::string&& name_last_stop) noexcept
 {
 	Bus temp;
 	buses_.push_back(std::move(temp));
 	buses_.back().name = std::move(name_bus);
 	buses_.back().is_roundtrip = is_ring;
-	buses_.back().ending_station_first = stops_for_bus.front();
-	buses_.back().ending_station_lost = std::move(station_lost);
+	buses_.back().name_first_stop = stops_for_bus.front();
+	buses_.back().name_last_stop = std::move(name_last_stop);
 
 	for (auto it = stops_for_bus.begin(); it != stops_for_bus.end(); ++it)
 	{
@@ -59,13 +59,13 @@ void transport_catalogue::TransportCatalogue::AddBus(std::string&& name_bus, std
 	name_bus_.insert({ buses_.back().name, &buses_.back() });
 }
 
-void transport_catalogue::TransportCatalogue::AddDistanceBetweenStops(std::string_view nameStop, std::vector<std::pair< std::string, int>> stops_to_stop) noexcept
+void transport_catalogue::TransportCatalogue::AddDistanceBetweenStops(std::string_view nameStop, const std::vector<NearestStop>& distance_to_nearest_stops) noexcept
 {
 	StopPtr stop1 = FindStop(nameStop);
-	for (auto it = stops_to_stop.begin(); it != stops_to_stop.end(); ++it)
+	for (auto it = distance_to_nearest_stops.begin(); it != distance_to_nearest_stops.end(); ++it)
 	{
-		StopPtr stop2 = FindStop(it->first);
-		dist_betw_stops_.insert({ {stop1, stop2}, it->second });
+		StopPtr stop2 = FindStop(it->name_nearest_stop);
+		dist_betw_stops_.insert({ {stop1, stop2}, it->distance_to_nearest_stop });
 	}
 }
 

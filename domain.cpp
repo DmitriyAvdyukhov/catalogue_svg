@@ -3,10 +3,10 @@
 
 namespace add_transport_catologue
 {
-	Buses ParsingBus(const json::Dict& dict)
+	Bus ParseBus(const json::Dict& dict)
 	{
 		{
-			Buses bus_temp;
+			Bus bus_temp;
 
 			bus_temp.name_bus = dict.at("name"s).AsString();
 			bus_temp.is_roundtrip = dict.at("is_roundtrip"s).AsBool();
@@ -15,12 +15,12 @@ namespace add_transport_catologue
 			for (auto it = stops.begin(); it != stops.end(); ++it)
 			{
 				bus_temp.stops_for_bus.push_back(it->AsString());
-				bus_temp.ending_station_lost = bus_temp.stops_for_bus.back();
+				bus_temp.name_last_stop = bus_temp.stops_for_bus.back();
 			}
 			if (!bus_temp.is_roundtrip)
 			{
 
-				bus_temp.ending_station_lost = bus_temp.stops_for_bus.back();
+				bus_temp.name_last_stop = bus_temp.stops_for_bus.back();
 				bus_temp.stops_for_bus.reserve(bus_temp.stops_for_bus.size() * 2 - 1);
 				bus_temp.stops_for_bus.insert(bus_temp.stops_for_bus.end(),
 					std::next(bus_temp.stops_for_bus.rbegin()), bus_temp.stops_for_bus.rend());
@@ -30,10 +30,10 @@ namespace add_transport_catologue
 		}
 	}
 
-	Stops ParsingStop(const json::Dict& dict)
+	Stop ParseStop(const json::Dict& dict)
 	{
 		{
-			Stops stop_temp;
+			Stop stop_temp;
 
 			stop_temp.name_stop = dict.at("name"s).AsString();
 			stop_temp.latitude = dict.at("latitude"s).AsDouble();
@@ -41,38 +41,38 @@ namespace add_transport_catologue
 			json::Dict distance_road = dict.at("road_distances"s).AsMap();
 			for (auto [name_stop, distance] : distance_road)
 			{
-				std::pair<std::string, int> temp = { name_stop, distance.AsInt() };
-				stop_temp.stops_to_stop.push_back(std::move(temp));
+				transport_catalogue::NearestStop temp = { name_stop, distance.AsInt() };
+				stop_temp.distance_to_nearest_stops.push_back(std::move(temp));
 			}
 			return stop_temp;
 		}
 	}
 
-	std::vector<Buses> AddBusTemp(const json::Array& temp)
+	std::vector<Bus> AddBusTemp(const json::Array& temp)
 	{
 		{
-			std::vector<Buses> buses;
+			std::vector<Bus> buses;
 			for (auto it = temp.begin(); it != temp.end(); ++it)
 			{
 				if (it->AsMap().at("type"s).AsString() == "Bus"s)
 				{
-					buses.push_back(std::move(ParsingBus(it->AsMap())));
+					buses.push_back(std::move(ParseBus(it->AsMap())));
 				}
 			}
 			return buses;
 		}
 	}
 
-	std::vector<Stops> AddStopsTemp(const json::Array& temp)
+	std::vector<Stop> AddStopsTemp(const json::Array& temp)
 	{
 		{
-			std::vector<Stops> stops;
+			std::vector<Stop> stops;
 
 			for (auto it = temp.begin(); it != temp.end(); ++it)
 			{
 				if (it->AsMap().at("type"s).AsString() == "Stop"s)
 				{
-					stops.push_back(std::move(ParsingStop(it->AsMap())));
+					stops.push_back(std::move(ParseStop(it->AsMap())));
 				}
 			}
 			return stops;
@@ -85,15 +85,15 @@ namespace add_transport_catologue
 		for (auto stop : AddStopsTemp(base_requests))
 		{
 			tc.AddStop({ stop.latitude, stop.longitude }, std::move(stop.name_stop));
-			dist_temp.push_back({ tc.GetStop().back().name, stop.stops_to_stop });
+			dist_temp.push_back({ tc.GetStop().back().name, stop.distance_to_nearest_stops });
 		}
 		for (auto it = dist_temp.begin(); it != dist_temp.end(); ++it)
 		{
-			tc.AddDistanceBetweenStops(std::move(it->name_stop), std::move(it->stops_to_stop));
+			tc.AddDistanceBetweenStops(std::move(it->name_stop), std::move(it->distance_to_nearest_stops));
 		}
 		for (auto bus : AddBusTemp(base_requests))
 		{
-			tc.AddBus(std::move(bus.name_bus), std::move(bus.stops_for_bus), bus.is_roundtrip, std::move(bus.ending_station_lost));
+			tc.AddBus(std::move(bus.name_bus), std::move(bus.stops_for_bus), bus.is_roundtrip, std::move(bus.name_last_stop));
 		}
 	}
 
@@ -104,7 +104,7 @@ namespace stat_request
 {
 	std::vector<StatTemp> AddStatRequestVector(json::Array stat_requests)
 	{
-		std::vector<StatTemp>stats;
+		std::vector<StatTemp> stats;
 		for (auto it = stat_requests.begin(); it != stat_requests.end(); ++it)
 		{
 			if (it->AsMap().at("type").AsString() == "Map")
