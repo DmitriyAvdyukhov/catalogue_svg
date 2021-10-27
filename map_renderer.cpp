@@ -92,7 +92,7 @@ namespace renderer
 		return route_bus;
 	}	
 
-	svg::Text MapRenderer::TextSvgForBus(const transport_catalogue::Bus& bus, const svg::Point& pos, const std::string& data)
+	svg::Text MapRenderer::TextSvgForBus(const svg::Point& pos, const std::string& data)
 	{
 		return svg::Text().SetPosition(pos)
 			.SetOffset({ settings_.bus_label_offset.lat, settings_.bus_label_offset.lng })
@@ -100,16 +100,16 @@ namespace renderer
 			.SetFontFamily("Verdana")
 			.SetFontWeight("bold")
 			.SetData(data);
+	}	
+
+	svg::Text MapRenderer::CreateSVGTextForBus(const svg::Point& pos, const svg::Color& color, const std::string& data)
+	{
+		return TextSvgForBus(pos, data).SetFillColor(color);
 	}
 
-	svg::Text MapRenderer::TextSvgNameBus(const transport_catalogue::Bus& bus, const svg::Point& pos, const svg::Color& color, const std::string& data)
+	svg::Text MapRenderer::CreateSVGTextForBus(const svg::Point& pos, const std::string& data)
 	{
-		return TextSvgForBus(bus, pos, data).SetFillColor(color);
-	}
-
-	svg::Text MapRenderer::TextSvgNameBusSbstr(const transport_catalogue::Bus& bus, const svg::Point& pos, const std::string& data)
-	{
-		return TextSvgForBus(bus, pos, data)
+		return TextSvgForBus(pos, data)
 			.SetFillColor(settings_.underlayer_color)
 			.SetStrokeColor(settings_.underlayer_color)
 			.SetStrokeWidth(settings_.underlayer_width)
@@ -121,14 +121,14 @@ namespace renderer
 	{		
 		std::vector<svg::Text>result;			
 
-		result.push_back(TextSvgNameBusSbstr(bus, s_({ bus.stops.front()->coordinates.lat, bus.stops.front()->coordinates.lng }), bus.name));
-		result.push_back(TextSvgNameBus(bus, s_({ bus.stops.front()->coordinates.lat, bus.stops.front()->coordinates.lng }), color, bus.name));
+		result.push_back(CreateSVGTextForBus(s_({ bus.stops.front()->coordinates.lat, bus.stops.front()->coordinates.lng }), bus.name));
+		result.push_back(CreateSVGTextForBus(s_({ bus.stops.front()->coordinates.lat, bus.stops.front()->coordinates.lng }), color, bus.name));
 
 		if (!bus.is_roundtrip && bus.stops[(bus.stops.size() + 1) / 2 - 1] != bus.stops[0])
 		{
-			result.push_back(TextSvgNameBusSbstr(bus, s_({ bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lat
+			result.push_back(CreateSVGTextForBus(s_({ bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lat
 				, bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lng }), bus.name));
-			result.push_back(TextSvgNameBus(bus, s_({ bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lat
+			result.push_back(CreateSVGTextForBus(s_({ bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lat
 				, bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lng }), color, bus.name));
 		}
 		return result;		
@@ -143,12 +143,12 @@ namespace renderer
 			.SetData(data);
 	}
 
-	svg::Text MapRenderer::TextSvgNameStop( const svg::Point& pos, const svg::Color& color, const std::string& data)
+	svg::Text MapRenderer::CreateSVGTextForStop(const svg::Point& pos, const svg::Color& color, const std::string& data)
 	{
 		return TextSvgForStop(pos, data).SetFillColor(color);
 	}
 
-	svg::Text MapRenderer::TextSvgNameStopSbstr( const svg::Point& pos, const std::string& data)
+	svg::Text MapRenderer::CreateSVGTextForStop(const svg::Point& pos, const std::string& data)
 	{
 		return TextSvgForStop( pos, data)
 			.SetFillColor(settings_.underlayer_color)
@@ -164,8 +164,8 @@ namespace renderer
 		for (size_t i = 0; i < bus.stops.size() - 1; ++i)
 		{
 			result.push_back({ bus.stops[i]->name 
-				, TextSvgNameStop( s_({ bus.stops[i]->coordinates.lat, bus.stops[i]->coordinates.lng }), "black", bus.stops[i]->name)
-				, TextSvgNameStopSbstr( s_({ bus.stops[i]->coordinates.lat, bus.stops[i]->coordinates.lng }),bus.stops[i]->name) });
+				, CreateSVGTextForStop( s_({ bus.stops[i]->coordinates.lat, bus.stops[i]->coordinates.lng }), "black", bus.stops[i]->name)
+				, CreateSVGTextForStop( s_({ bus.stops[i]->coordinates.lat, bus.stops[i]->coordinates.lng }),bus.stops[i]->name) });
 		}
 		return result;		
 	}

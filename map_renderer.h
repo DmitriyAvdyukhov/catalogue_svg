@@ -88,15 +88,15 @@ namespace sphere_projector
 
 namespace renderer
 {
-	using Map_shape_circle_stops = std::map<std::string, svg::Circle>;
-	using Map_shape_name_stops = std::map<std::string, std::pair<svg::Text, svg::Text>>;
+	using MapShapeCircleStops = std::map<std::string, svg::Circle>;
+	using MapShapeNameStops = std::map<std::string, std::pair<svg::Text, svg::Text>>;
 
 	struct TempDocument
 	{
 		std::vector<svg::Polyline> shape_buses;
 		std::vector<svg::Text> shape_name_buses;
-		Map_shape_circle_stops shape_circle_stops;
-		Map_shape_name_stops shape_name_stops;
+		MapShapeCircleStops shape_circle_stops;
+		MapShapeNameStops shape_name_stops;
 	};
 
 	struct RenderSettings
@@ -145,24 +145,24 @@ namespace renderer
 	public:
 		explicit MapRenderer(const json::Dict& render_settings, const transport_catalogue::TransportCatalogue& tc);
 
-		svg::Color AddColor(const json::Node& node);
+		inline svg::Color AddColor(const json::Node& node);
 
-		inline svg::Polyline AddRouteBus(const transport_catalogue::Bus& bus, const svg::Color& color);		
+		inline svg::Polyline AddRouteBus(const transport_catalogue::Bus& bus, const svg::Color& color);
 
-		inline svg::Text TextSvgForBus(const transport_catalogue::Bus& bus, const svg::Point& pos, const std::string& data);
+		inline svg::Text TextSvgForBus(const svg::Point& pos, const std::string& data);		
 
-		inline svg::Text TextSvgNameBus(const transport_catalogue::Bus& bus, const svg::Point& pos, const svg::Color& color, const std::string& data);
+		inline svg::Text CreateSVGTextForBus(const svg::Point& pos, const svg::Color& color, const std::string& data);
 
-		inline svg::Text TextSvgNameBusSbstr(const transport_catalogue::Bus& bus, const svg::Point& pos, const std::string& data);
+		inline svg::Text CreateSVGTextForBus(const svg::Point& pos, const std::string& data);			
 
 		inline std::vector<svg::Text> AddNameBus(const transport_catalogue::Bus& bus, const svg::Color& color);
 
 		inline svg::Text TextSvgForStop(const svg::Point& pos, const std::string& data);
 
-		inline svg::Text TextSvgNameStop(const svg::Point& pos, const svg::Color& color, const std::string& data);
+		inline svg::Text CreateSVGTextForStop(const svg::Point& pos, const svg::Color& color, const std::string& data);
 
-		inline svg::Text TextSvgNameStopSbstr(const svg::Point& pos, const std::string& data);		
-
+		inline svg::Text CreateSVGTextForStop(const svg::Point& pos, const std::string& data);
+		
 		inline std::vector<ShapeTextNameStop> AddNameStops(const transport_catalogue::Bus& bus);
 
 		inline std::vector<ShapeCircleStop> AddCircleStops(const transport_catalogue::Bus& bus);
