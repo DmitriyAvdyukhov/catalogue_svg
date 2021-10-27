@@ -603,7 +603,7 @@ namespace json
         {
             output << "null"s;
         }
-        else if (var == NodeVariant::IS_ARREY)   
+        else if (var == NodeVariant::IS_ARRAY)
         {
             bool is_first = true;
             static bool first = true;

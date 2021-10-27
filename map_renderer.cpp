@@ -90,92 +90,84 @@ namespace renderer
 			route_bus.AddPoint(point);
 		}
 		return route_bus;
+	}	
+
+	svg::Text MapRenderer::TextSvgForBus(const transport_catalogue::Bus& bus, const svg::Point& pos, const std::string& data)
+	{
+		return svg::Text().SetPosition(pos)
+			.SetOffset({ settings_.bus_label_offset.lat, settings_.bus_label_offset.lng })
+			.SetFontSize(settings_.bus_label_font_size)
+			.SetFontFamily("Verdana")
+			.SetFontWeight("bold")
+			.SetData(data);
+	}
+
+	svg::Text MapRenderer::TextSvgNameBus(const transport_catalogue::Bus& bus, const svg::Point& pos, const svg::Color& color, const std::string& data)
+	{
+		return TextSvgForBus(bus, pos, data).SetFillColor(color);
+	}
+
+	svg::Text MapRenderer::TextSvgNameBusSbstr(const transport_catalogue::Bus& bus, const svg::Point& pos, const std::string& data)
+	{
+		return TextSvgForBus(bus, pos, data)
+			.SetFillColor(settings_.underlayer_color)
+			.SetStrokeColor(settings_.underlayer_color)
+			.SetStrokeWidth(settings_.underlayer_width)
+			.SetStrokeLineCap(svg::StrokeLineCap::ROUND)
+			.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
 	}
 
 	std::vector<svg::Text> MapRenderer::AddNameBus(const transport_catalogue::Bus& bus, const svg::Color& color)
-	{
+	{		
+		std::vector<svg::Text>result;			
+
+		result.push_back(TextSvgNameBusSbstr(bus, s_({ bus.stops.front()->coordinates.lat, bus.stops.front()->coordinates.lng }), bus.name));
+		result.push_back(TextSvgNameBus(bus, s_({ bus.stops.front()->coordinates.lat, bus.stops.front()->coordinates.lng }), color, bus.name));
+
+		if (!bus.is_roundtrip && bus.stops[(bus.stops.size() + 1) / 2 - 1] != bus.stops[0])
 		{
-			std::vector<svg::Text>result;
-			svg::Text name_bus;
-			svg::Text name_bus_substr;
-
-			name_bus_substr = name_bus.SetPosition(s_({ bus.stops.front()->coordinates.lat, bus.stops.front()->coordinates.lng }));
-			name_bus_substr = name_bus.SetOffset({ settings_.bus_label_offset.lat, settings_.bus_label_offset.lng });
-			name_bus_substr = name_bus.SetFontSize(settings_.bus_label_font_size);
-			name_bus_substr = name_bus.SetFontFamily("Verdana");
-			name_bus_substr = name_bus.SetFontWeight("bold");
-			name_bus_substr = name_bus.SetData(bus.name);
-			name_bus.SetFillColor(color);
-			name_bus_substr.SetFillColor(settings_.underlayer_color);
-			name_bus_substr.SetStrokeColor(settings_.underlayer_color);
-			name_bus_substr.SetStrokeWidth(settings_.underlayer_width);
-			name_bus_substr.SetStrokeLineCap(svg::StrokeLineCap::ROUND);
-			name_bus_substr.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
-
-			result.push_back(name_bus_substr);
-			result.push_back(name_bus);
-
-			if (!bus.is_roundtrip && bus.stops[(bus.stops.size() + 1) / 2 - 1] != bus.stops[0])
-			{
-				svg::Text name_bus;
-				svg::Text name_bus_substr;
-
-				name_bus_substr = name_bus.SetPosition(s_({ bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lat
-					, bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lng }));
-				name_bus_substr = name_bus.SetOffset({ settings_.bus_label_offset.lat, settings_.bus_label_offset.lng });
-				name_bus_substr = name_bus.SetFontSize(settings_.bus_label_font_size);
-				name_bus_substr = name_bus.SetFontFamily("Verdana");
-				name_bus_substr = name_bus.SetFontWeight("bold");
-				name_bus_substr = name_bus.SetData(bus.name);
-				name_bus.SetFillColor(color);
-				name_bus_substr.SetFillColor(settings_.underlayer_color);
-				name_bus_substr.SetStrokeColor(settings_.underlayer_color);
-				name_bus_substr.SetStrokeWidth(settings_.underlayer_width);
-				name_bus_substr.SetStrokeLineCap(svg::StrokeLineCap::ROUND);
-				name_bus_substr.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
-
-				result.push_back(name_bus_substr);
-				result.push_back(name_bus);
-			}
-			return result;
+			result.push_back(TextSvgNameBusSbstr(bus, s_({ bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lat
+				, bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lng }), bus.name));
+			result.push_back(TextSvgNameBus(bus, s_({ bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lat
+				, bus.stops[(bus.stops.size() + 1) / 2 - 1]->coordinates.lng }), color, bus.name));
 		}
+		return result;		
+	}
+
+	svg::Text MapRenderer::TextSvgForStop( const svg::Point& pos, const std::string& data)
+	{
+		return svg::Text().SetPosition(pos)
+			.SetOffset({ settings_.stop_label_offset.lat, settings_.stop_label_offset.lng })
+			.SetFontSize(settings_.stop_label_font_size)
+			.SetFontFamily("Verdana")			
+			.SetData(data);
+	}
+
+	svg::Text MapRenderer::TextSvgNameStop( const svg::Point& pos, const svg::Color& color, const std::string& data)
+	{
+		return TextSvgForStop(pos, data).SetFillColor(color);
+	}
+
+	svg::Text MapRenderer::TextSvgNameStopSbstr( const svg::Point& pos, const std::string& data)
+	{
+		return TextSvgForStop( pos, data)
+			.SetFillColor(settings_.underlayer_color)
+			.SetStrokeColor(settings_.underlayer_color)
+			.SetStrokeWidth(settings_.underlayer_width)
+			.SetStrokeLineCap(svg::StrokeLineCap::ROUND)
+			.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
 	}
 
 	std::vector<ShapeTextNameStop> MapRenderer::AddNameStops(const transport_catalogue::Bus& bus)
-	{
+	{		
+		std::vector<ShapeTextNameStop> result;
+		for (size_t i = 0; i < bus.stops.size() - 1; ++i)
 		{
-			std::vector<ShapeTextNameStop> result;
-			for (size_t i = 0; i < bus.stops.size() - 1; ++i)
-			{
-				svg::Text name_stop;
-				svg::Text name_stop_substr;
-
-				name_stop.SetPosition(s_({ bus.stops[i]->coordinates.lat, bus.stops[i]->coordinates.lng }));
-				name_stop_substr.SetPosition(s_({ bus.stops[i]->coordinates.lat, bus.stops[i]->coordinates.lng }));
-
-				name_stop.SetOffset({ settings_.stop_label_offset.lat, settings_.stop_label_offset.lng });
-				name_stop_substr.SetOffset({ settings_.stop_label_offset.lat, settings_.stop_label_offset.lng });
-
-				name_stop.SetFontSize(settings_.stop_label_font_size);
-				name_stop_substr.SetFontSize(settings_.stop_label_font_size);
-
-				name_stop.SetFontFamily("Verdana");
-				name_stop_substr.SetFontFamily("Verdana");
-
-				name_stop.SetData(bus.stops[i]->name);
-				name_stop_substr.SetData(bus.stops[i]->name);
-
-				name_stop_substr.SetFillColor(settings_.underlayer_color);
-				name_stop_substr.SetStrokeColor(settings_.underlayer_color);
-				name_stop_substr.SetStrokeWidth(settings_.underlayer_width);
-				name_stop_substr.SetStrokeLineCap(svg::StrokeLineCap::ROUND);
-				name_stop_substr.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
-
-				name_stop.SetFillColor("black");
-				result.push_back({ bus.stops[i]->name , name_stop, name_stop_substr });
-			}
-			return result;
+			result.push_back({ bus.stops[i]->name 
+				, TextSvgNameStop( s_({ bus.stops[i]->coordinates.lat, bus.stops[i]->coordinates.lng }), "black", bus.stops[i]->name)
+				, TextSvgNameStopSbstr( s_({ bus.stops[i]->coordinates.lat, bus.stops[i]->coordinates.lng }),bus.stops[i]->name) });
 		}
+		return result;		
 	}
 
 	std::vector<ShapeCircleStop> MapRenderer::AddCircleStops(const transport_catalogue::Bus& bus)
@@ -220,9 +212,7 @@ namespace renderer
 				++j;
 			}
 		}
-	}
-
-	//-----------------------Set------------------------------
+	}	
 
 	void MapRenderer::PushBusSvg(const transport_catalogue::Bus& bus, const svg::Color& color)
 	{
@@ -247,7 +237,7 @@ namespace renderer
 
 	//----------Document to string--------------------------------------
 
-	inline TempDocument MapRenderer::PreparationDocument(const std::vector<BusSvg>& buses) const
+	inline TempDocument MapRenderer::PrepareDocument(const std::vector<BusSvg>& buses) const
 	{
 		TempDocument temp;
 		for (const auto& bus : buses)
@@ -278,21 +268,21 @@ namespace renderer
 	{
 		svg::Document doc;
 
-		for (const auto& line : PreparationDocument(buses_).shape_buses)
+		for (const auto& line : PrepareDocument(buses_).shape_buses)
 		{
 			doc.Add(line);
 		}
-		for (const auto& text : PreparationDocument(buses_).shape_name_buses)
+		for (const auto& text : PrepareDocument(buses_).shape_name_buses)
 		{
 			doc.Add(text);
 		}
 
-		for (const auto& circle : PreparationDocument(buses_).shape_circle_stops)
+		for (const auto& circle : PrepareDocument(buses_).shape_circle_stops)
 		{
 			doc.Add(circle.second);
 		}
 
-		for (const auto& stop : PreparationDocument(buses_).shape_name_stops)
+		for (const auto& stop : PrepareDocument(buses_).shape_name_stops)
 		{
 			doc.Add(stop.second.second);
 			doc.Add(stop.second.first);

@@ -20,7 +20,7 @@ int main() {
 		{
 			RequestReader rr(in);
 			transport_catalogue::TransportCatalogue tc;
-			add_transport_catologue::AddTransportCatalogueByJson(tc, rr.GetBaseRequest());
+			add_transport_catalogue::AddTransportCatalogueByJson(tc, rr.GetBaseRequest());
 			renderer::MapRenderer mr(rr.GetRenderer(), tc);
 			RequestHandler rh(tc, mr);
 			stat_request::PrintStatDoc(rh, rr.GetStatRequest());
@@ -29,7 +29,7 @@ int main() {
 		{
 			RequestReader rr(std::cin);
 			transport_catalogue::TransportCatalogue tc;
-			add_transport_catologue::AddTransportCatalogueByJson(tc, rr.GetBaseRequest());
+			add_transport_catalogue::AddTransportCatalogueByJson(tc, rr.GetBaseRequest());
 			renderer::MapRenderer mr(rr.GetRenderer(), tc);
 			RequestHandler rh(tc, mr);
 			stat_request::PrintStatDoc(rh, rr.GetStatRequest());

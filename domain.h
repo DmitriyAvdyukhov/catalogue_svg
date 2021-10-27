@@ -3,7 +3,7 @@
 
 
 
-namespace add_transport_catologue
+namespace add_transport_catalogue
 {
 	struct Bus
 	{
@@ -45,7 +45,7 @@ namespace stat_request
 		std::string name_type{};
 	};
 
-	inline std::vector<StatTemp> AddStatRequestVector(json::Array stat_requests);
+	inline std::vector<StatTemp> StatRequestJsonToVectorRequest(json::Array stat_requests);
 
 	void PrintStatDoc(const RequestHandler& rh, json::Array stat_requests);
 

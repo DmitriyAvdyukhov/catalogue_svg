@@ -12,7 +12,7 @@ namespace json
     enum NodeVariant
     {
         IS_NULL,
-        IS_ARREY,
+        IS_ARRAY,
         IS_MAP,
         IS_BOOL,
         IS_INT,

@@ -88,12 +88,15 @@ namespace sphere_projector
 
 namespace renderer
 {
+	using Map_shape_circle_stops = std::map<std::string, svg::Circle>;
+	using Map_shape_name_stops = std::map<std::string, std::pair<svg::Text, svg::Text>>;
+
 	struct TempDocument
 	{
 		std::vector<svg::Polyline> shape_buses;
 		std::vector<svg::Text> shape_name_buses;
-		std::map<std::string, svg::Circle> shape_circle_stops;
-		std::map<std::string, std::pair<svg::Text, svg::Text>> shape_name_stops;
+		Map_shape_circle_stops shape_circle_stops;
+		Map_shape_name_stops shape_name_stops;
 	};
 
 	struct RenderSettings
@@ -144,9 +147,21 @@ namespace renderer
 
 		svg::Color AddColor(const json::Node& node);
 
-		inline svg::Polyline AddRouteBus(const transport_catalogue::Bus& bus, const svg::Color& color);
+		inline svg::Polyline AddRouteBus(const transport_catalogue::Bus& bus, const svg::Color& color);		
+
+		inline svg::Text TextSvgForBus(const transport_catalogue::Bus& bus, const svg::Point& pos, const std::string& data);
+
+		inline svg::Text TextSvgNameBus(const transport_catalogue::Bus& bus, const svg::Point& pos, const svg::Color& color, const std::string& data);
+
+		inline svg::Text TextSvgNameBusSbstr(const transport_catalogue::Bus& bus, const svg::Point& pos, const std::string& data);
 
 		inline std::vector<svg::Text> AddNameBus(const transport_catalogue::Bus& bus, const svg::Color& color);
+
+		inline svg::Text TextSvgForStop(const svg::Point& pos, const std::string& data);
+
+		inline svg::Text TextSvgNameStop(const svg::Point& pos, const svg::Color& color, const std::string& data);
+
+		inline svg::Text TextSvgNameStopSbstr(const svg::Point& pos, const std::string& data);		
 
 		inline std::vector<ShapeTextNameStop> AddNameStops(const transport_catalogue::Bus& bus);
 
@@ -158,7 +173,7 @@ namespace renderer
 
 		void AddBusSvg(const transport_catalogue::TransportCatalogue& tc);
 
-		inline TempDocument PreparationDocument(const std::vector<BusSvg>& buses)const;
+		inline TempDocument PrepareDocument(const std::vector<BusSvg>& buses)const;
 
 		std::string DocumentMapToString()const;
 

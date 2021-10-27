@@ -1,7 +1,7 @@
 #include "domain.h"
 
 
-namespace add_transport_catologue
+namespace add_transport_catalogue
 {
 	Bus ParseBus(const json::Dict& dict)
 	{
@@ -102,7 +102,7 @@ namespace add_transport_catologue
 
 namespace stat_request
 {
-	std::vector<StatTemp> AddStatRequestVector(json::Array stat_requests)
+	std::vector<StatTemp> StatRequestJsonToVectorRequest(json::Array stat_requests)
 	{
 		std::vector<StatTemp> stats;
 		for (auto it = stat_requests.begin(); it != stat_requests.end(); ++it)
@@ -133,7 +133,7 @@ namespace stat_request
 	void PrintStatDoc(const RequestHandler& rh, json::Array stat_requests)
 	{
 		json::Array answers;
-		for (const auto& stat : AddStatRequestVector(stat_requests))
+		for (const auto& stat : StatRequestJsonToVectorRequest(stat_requests))
 		{
 			if (stat.type == "Bus")
 			{
