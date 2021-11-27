@@ -8,10 +8,12 @@
 #include <vector>
 #include <variant>
 
-using namespace std::literals;
+
 
 namespace svg
 {
+    using namespace std::literals;
+
     struct Rgb
     {
         Rgb() : red(0), green(0), blue(0) {}

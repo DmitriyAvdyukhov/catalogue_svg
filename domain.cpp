@@ -1,6 +1,6 @@
 #include "domain.h"
 
-
+using namespace std::literals;
 namespace add_transport_catalogue
 {
 	Bus ParseBus(const json::Dict& dict)

@@ -4,7 +4,6 @@
 #include <exception>
 
 
-using namespace std::literals;
 
 class ErrorMassage : public std::exception
 {
