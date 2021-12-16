@@ -38,7 +38,7 @@ namespace add_transport_catalogue
 			stop_temp.name_stop = dict.at("name"s).AsString();
 			stop_temp.latitude = dict.at("latitude"s).AsDouble();
 			stop_temp.longitude = dict.at("longitude"s).AsDouble();
-			json::Dict distance_road = dict.at("road_distances"s).AsMap();
+			json::Dict distance_road = dict.at("road_distances"s).AsDict();
 			for (auto [name_stop, distance] : distance_road)
 			{
 				transport_catalogue::NearestStop temp = { name_stop, distance.AsInt() };
@@ -54,9 +54,9 @@ namespace add_transport_catalogue
 			std::vector<Bus> buses;
 			for (auto it = temp.begin(); it != temp.end(); ++it)
 			{
-				if (it->AsMap().at("type"s).AsString() == "Bus"s)
+				if (it->AsDict().at("type"s).AsString() == "Bus"s)
 				{
-					buses.push_back(std::move(ParseBus(it->AsMap())));
+					buses.push_back(std::move(ParseBus(it->AsDict())));
 				}
 			}
 			return buses;
@@ -70,9 +70,9 @@ namespace add_transport_catalogue
 
 			for (auto it = temp.begin(); it != temp.end(); ++it)
 			{
-				if (it->AsMap().at("type"s).AsString() == "Stop"s)
+				if (it->AsDict().at("type"s).AsString() == "Stop"s)
 				{
-					stops.push_back(std::move(ParseStop(it->AsMap())));
+					stops.push_back(std::move(ParseStop(it->AsDict())));
 				}
 			}
 			return stops;
@@ -107,16 +107,16 @@ namespace stat_request
 		std::vector<StatTemp> stats;
 		for (auto it = stat_requests.begin(); it != stat_requests.end(); ++it)
 		{
-			if (it->AsMap().at("type").AsString() == "Map")
+			if (it->AsDict().at("type").AsString() == "Map")
 			{
-				stats.push_back({ it->AsMap().at("id").AsInt()
-					, it->AsMap().at("type").AsString() });
+				stats.push_back({ it->AsDict().at("id").AsInt()
+					, it->AsDict().at("type").AsString() });
 			}
-			else if (it->AsMap().at("type").AsString() == "Stop" || it->AsMap().at("type").AsString() == "Bus")
+			else if (it->AsDict().at("type").AsString() == "Stop" || it->AsDict().at("type").AsString() == "Bus")
 			{
-				stats.push_back({ it->AsMap().at("id").AsInt()
-					, it->AsMap().at("type").AsString()
-					, it->AsMap().at("name").AsString() });
+				stats.push_back({ it->AsDict().at("id").AsInt()
+					, it->AsDict().at("type").AsString()
+					, it->AsDict().at("name").AsString() });
 			}
 			else
 			{
@@ -137,59 +137,79 @@ namespace stat_request
 		{
 			if (stat.type == "Bus")
 			{
-				json::Dict dict;
 				if (rh.GetBusStat(stat.name_type))
 				{
 					transport_catalogue::BusStat bus = rh.GetBusStat(stat.name_type).value();
-					dict["curvature"] = json::Node(bus.distance / bus.route_length);
-					dict["request_id"] = json::Node(stat.id_request);
-					dict["route_length"] = json::Node(bus.distance);
-					dict["stop_count"] = json::Node(bus.total_stops);
-					dict["unique_stop_count"] = json::Node(bus.unique_stops);
-				}
+
+					json::Node node = json::Builder{}
+						.StartDict()
+						.Key("curvature").Value(bus.distance / bus.route_length)
+						.Key("request_id").Value(stat.id_request)
+						.Key("route_length").Value(bus.distance)
+						.Key("stop_count").Value(bus.total_stops)
+						.Key("unique_stop_count").Value(bus.unique_stops)
+						.EndDict()
+						.Build();
+
+					answers.emplace_back(std::move(node));
+				}				
 				else
 				{
-					dict["request_id"] = json::Node(stat.id_request);
-					dict["error_message"] = json::Node(std::string("not found"));
-				}
+					json::Node node = json::Builder{}
+						.StartDict()
+						.Key("request_id").Value(stat.id_request)
+						.Key("error_message").Value("not found")
+						.EndDict()
+						.Build();		
 
-				answers.emplace_back(std::move(json::Node(dict)));
+					answers.emplace_back(std::move(node));
+				}				
 			}
 			else if (stat.type == "Stop")
 			{
-				json::Dict dict_stop;
-
-
 				transport_catalogue::StopInfo stop = rh.GetBusesByStop(stat.name_type);
 				if (stop.about == "not found")
 				{
-					dict_stop["request_id"] = json::Node(stat.id_request);
-					dict_stop["error_message"] = json::Node(std::string("not found"));
+					json::Node node = json::Builder{}
+						.StartDict()
+						.Key("request_id").Value(stat.id_request)
+						.Key("error_message").Value("not found")
+						.EndDict()
+						.Build();
+
+					answers.emplace_back(std::move(node));
 				}
 				else
-				{
-					json::Array ar;
+				{					
 					std::set<std::string>name_bus;
 					for (auto buses : stop.buses_for_stop)
 					{
 						name_bus.insert(buses->name);
 
 					}
+
+					json::Builder answer_stop;
+					answer_stop.StartDict()
+						.Key("buses").StartArray();
+
 					for (const auto& name : name_bus)
 					{
-						ar.push_back(json::Node(std::string(name)));
+						answer_stop.Value(name);
 					}
-					dict_stop["buses"] = json::Node(ar);
-					dict_stop["request_id"] = json::Node(stat.id_request);
-				}
-				answers.emplace_back(std::move(json::Node(dict_stop)));
+
+					answer_stop.EndArray()
+						.Key("request_id").Value(stat.id_request)
+						.EndDict();	
+
+					answers.emplace_back(std::move(answer_stop.Build()));
+				}				
 			}
 			else if (stat.type == "Map")
 			{
-				json::Dict dict_map;
-				dict_map["map"] = json::Node(std::string(std::move(*rh.GetMap())));
-				dict_map["request_id"] = json::Node(stat.id_request);
-				answers.emplace_back(std::move(json::Node(dict_map)));
+				json::Node node = json::Builder{}.StartDict()
+					.Key("map").Value(std::move(*rh.GetMap()))
+					.Key("request_id").Value(stat.id_request).EndDict().Build();
+				answers.emplace_back(std::move(node));				
 			}
 			else
 			{
