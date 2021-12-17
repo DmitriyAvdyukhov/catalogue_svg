@@ -123,7 +123,7 @@ namespace stat_request
 				std::string file = __FILE__;
 				std::string line = std::to_string(__LINE__);
 				std::string error = "Incorrect input stat request in file: " + file + " in line: " + line;
-				throw ErrorMassage(error);
+				throw ErrorMessage(error);
 			}
 		}
 		return stats;
@@ -216,7 +216,7 @@ namespace stat_request
 				std::string file = __FILE__;
 				std::string line = std::to_string(__LINE__);
 				std::string error = "Incorrect input stat request in file: " + file + " in line: " + line;
-				throw ErrorMassage(error);
+				throw ErrorMessage(error);
 			}
 		}
 

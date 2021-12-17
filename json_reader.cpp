@@ -3,7 +3,7 @@
 using namespace std::literals;
 
 
-std::string ErrorMassage::what()
+std::string ErrorMessage::what()
 {
 	return what_;
 }

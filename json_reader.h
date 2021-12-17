@@ -5,10 +5,10 @@
 
 
 
-class ErrorMassage : public std::exception
+class ErrorMessage : public std::exception
 {
 public:
-	ErrorMassage(const std::string& w) : what_(w) {}
+	ErrorMessage(const std::string& w) : what_(w) {}
 
 	std::string what();
 
