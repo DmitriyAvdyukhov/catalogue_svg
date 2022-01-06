@@ -82,6 +82,7 @@ namespace add_transport_catalogue
 	void AddTransportCatalogueByJson(transport_catalogue::TransportCatalogue& tc, json::Array base_requests)
 	{
 		std::vector<transport_catalogue::DistanceStop> dist_temp;
+
 		for (auto stop : AddStopsTemp(base_requests))
 		{
 			tc.AddStop({ stop.latitude, stop.longitude }, std::move(stop.name_stop));
