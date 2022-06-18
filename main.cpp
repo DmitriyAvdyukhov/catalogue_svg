@@ -26,10 +26,10 @@ int main() {
 		{
 			rr = std::make_unique<RequestReader>(std::cin);			
 		}
-		transport_catalogue::TransportCatalogue tc;
-		add_transport_catalogue::AddTransportCatalogueByJson(tc, rr->GetBaseRequest());
-		mr = std::make_unique<renderer::MapRenderer>(rr->GetRenderer(), tc);
-		rh = std::make_unique<RequestHandler>(tc, *mr);
+		transport_catalogue::TransportCatalogue* tc = transport_catalogue::TransportCatalogue::Inastance();
+		add_transport_catalogue::AddTransportCatalogueByJson(*tc, rr->GetBaseRequest());
+		mr = std::make_unique<renderer::MapRenderer>(rr->GetRenderer(), *tc);
+		rh = std::make_unique<RequestHandler>(*tc, *mr);
 		stat_request::PrintStatDoc(*rh, rr->GetStatRequest());
 
 	}

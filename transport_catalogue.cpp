@@ -3,6 +3,7 @@
 
 using namespace transport_catalogue;
 
+TransportCatalogue* TransportCatalogue::tc_ = nullptr;
 
 StopPtr transport_catalogue::TransportCatalogue::FindStop(const std::string_view& stop) const noexcept
 {
@@ -139,3 +140,11 @@ size_t transport_catalogue::StopHasher::operator()(const std::pair<StopPtr, Stop
 	}
 }
 
+TransportCatalogue* transport_catalogue::TransportCatalogue::Inastance()
+{
+	if (!tc_)
+	{
+		tc_ = new TransportCatalogue();
+	}
+	return tc_;
+}

@@ -79,49 +79,4 @@ private:
 	json::Dict render_settings_;
 };
 
-class RequestReader1
-{
-public:
-	RequestReader1() = default;
 
-	RequestReader1(std::istream& in)
-	{
-		json::Document doc_ = json::Load(in);
-
-		json::Array base_requests = doc_.GetRoot().AsDict().at("base_requests"s).AsArray();
-
-		for (auto it = base_requests.begin(); it != base_requests.end(); ++it)
-		{
-			if (it->AsDict().at("type"s).AsString() == "Stop"s)
-			{
-				BaseRecuest temp;
-				temp.type = it->AsDict().at("type"s).AsString();
-				json::Dict dict = it->AsDict();				
-				temp.name_stop = dict.at("name"s).AsString();
-				temp.latitude = dict.at("latitude"s).AsDouble();
-				temp.longitude = dict.at("longitude"s).AsDouble();
-				json::Dict distance_road = dict.at("road_distances"s).AsDict();
-				for (auto [name_stop, distance] : distance_road)
-				{
-					NearestStop ns = { name_stop, distance.AsInt() };
-					temp.distance_to_nearest_stops.push_back(std::move(ns));
-				}
-				
-			}
-		}
-
-
-		json::Array stat_requests = doc_.GetRoot().AsDict().at("stat_requests"s).AsArray();
-
-		json::Dict render_settings = doc_.GetRoot().AsDict().at("render_settings"s).AsDict();
-	}
-
-	
-
-
-private:
-	std::vector<BaseRecuest> base_request_;
-	std::vector<StatRequest> stat_request_;
-
-	
-};
