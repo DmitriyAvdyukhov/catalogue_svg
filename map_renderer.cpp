@@ -198,7 +198,7 @@ namespace renderer
 			{
 				return lhs.name < rhs.name;
 			});
-		int j = 0;
+		size_t j = 0;
 		for (size_t i = 0; i < buses.size(); ++i)
 		{
 			if (buses[i].stops.size())

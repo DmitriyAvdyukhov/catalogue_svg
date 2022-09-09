@@ -14,28 +14,26 @@ int main() {
 
 	try
 	{
-		std::ifstream in("test5.txt");
-
+		std::ifstream in("test4.txt");
+		std::unique_ptr<RequestReader> rr; 
+		std::unique_ptr<renderer::MapRenderer> mr;
+		std::unique_ptr<RequestHandler> rh;
 		if (in)
 		{
-			RequestReader rr(in);
-			transport_catalogue::TransportCatalogue tc;
-			add_transport_catalogue::AddTransportCatalogueByJson(tc, rr.GetBaseRequest());
-			renderer::MapRenderer mr(rr.GetRenderer(), tc);
-			RequestHandler rh(tc, mr);
-			stat_request::PrintStatDoc(rh, rr.GetStatRequest());
+			rr = std::make_unique<RequestReader>(in);			
 		}
 		else
 		{
-			RequestReader rr(std::cin);
-			transport_catalogue::TransportCatalogue tc;
-			add_transport_catalogue::AddTransportCatalogueByJson(tc, rr.GetBaseRequest());
-			renderer::MapRenderer mr(rr.GetRenderer(), tc);
-			RequestHandler rh(tc, mr);
-			stat_request::PrintStatDoc(rh, rr.GetStatRequest());
+			rr = std::make_unique<RequestReader>(std::cin);			
 		}
+		transport_catalogue::TransportCatalogue* tc = transport_catalogue::TransportCatalogue::Inastance();
+		add_transport_catalogue::AddTransportCatalogueByJson(*tc, rr->GetBaseRequest());
+		mr = std::make_unique<renderer::MapRenderer>(rr->GetRenderer(), *tc);
+		rh = std::make_unique<RequestHandler>(*tc, *mr);
+		stat_request::PrintStatDoc(*rh, rr->GetStatRequest());
+
 	}
-	catch (ErrorMassage& e)
+	catch (ErrorMessage& e)
 	{
 		std::cerr << e.what();
 	}

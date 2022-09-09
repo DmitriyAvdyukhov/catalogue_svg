@@ -76,7 +76,7 @@ namespace transport_catalogue
 	{
 	public:
 
-		TransportCatalogue() = default;
+		static TransportCatalogue* Inastance();		
 
 		StopPtr FindStop(const std::string_view& stop) const noexcept;
 
@@ -101,6 +101,8 @@ namespace transport_catalogue
 		const std::unordered_map<StopPtr, std::unordered_set<BusPtr>>& GetStopToBuses()const noexcept;
 
 	private:
+		TransportCatalogue() = default;
+		static TransportCatalogue* tc_;
 		std::deque<Bus> buses_;
 		std::deque<Stop> stops_;
 
